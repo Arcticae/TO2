@@ -1,3 +1,6 @@
+import io.reactivex.Observable;
+import io.reactivex.Observer;
+import io.reactivex.disposables.Disposable;
 import model.Photo;
 import util.PhotoDownloader;
 import util.PhotoProcessor;
@@ -30,16 +33,18 @@ public class PhotoCrawler {
 
     public void downloadPhotoExamples() {
         try {
-            List<Photo> downloadedExamples = photoDownloader.getPhotoExamples();
-            for (Photo photo : downloadedExamples) {
-                photoSerializer.savePhoto(photo);
-            }
+          //  Observable<Photo> photos = photoDownloader.getPhotoExamples();
+            Observable<Photo> photos = photoDownloader.searchForPhotos("Mini Cooper");
+            photos.subscribe(this.photoSerializer::savePhoto);
         } catch (IOException e) {
             log.log(Level.SEVERE, "Downloading photo examples error", e);
         }
     }
 
     public void downloadPhotosForQuery(String query) throws IOException {
-        // TODO Implement me :(
+         photoDownloader.searchForPhotos(query).subscribe(photoSerializer::savePhoto);
+    }
+    public void downloadPhotosForMultipleQueries(List<String> queries){
+        photoDownloader.searchForPhotos(queries).subscribe(photoSerializer::savePhoto);
     }
 }
